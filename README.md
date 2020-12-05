@@ -19,4 +19,11 @@ pdf中的图片或表格 需要以：图/表/图表 的形式开始，资料来�
 效果展示
 ---------
 提取之后的全部文件夹
-![image]()
+![image](https://github.com/hooser/pdfAreaExtraction/blob/master/images/totalPackage.JPG)
+单个文件夹内部
+![image](https://github.com/hooser/pdfAreaExtraction/blob/master/images/innerPackage.JPG)
+原始的pdf页面
+![image](https://github.com/hooser/pdfAreaExtraction/blob/master/images/pdfPages.JPG)
+提取效果
+![image](https://github.com/hooser/pdfAreaExtraction/blob/master/images/jietu.JPG)
+
