@@ -1,5 +1,6 @@
 package service;
 
+import bean.CsvEntity;
 import bean.DoubleY;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -10,6 +11,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PdfAreaExtraction {
@@ -35,15 +37,27 @@ public class PdfAreaExtraction {
 
             //获取该文件夹下的所有文件，并处理
             File[] files=file.listFiles();
-            IllegalCharInNameHandler illegalCharInNameHandler = new IllegalCharInNameHandler();
+//            IllegalCharInNameHandler illegalCharInNameHandler = new IllegalCharInNameHandler();
+            int pdfCount = 1;
             for(File tfile:files){
+
+                /*
+                 * 图片title列表 & 资料来源source列表
+                 */
+                List<String> picOrTabTitileList = new ArrayList();
+                List<String> sourceList = new ArrayList();
+
                 String totalName = tfile.getName();
                 int dotPosition = totalName.lastIndexOf('.');
+
+                /*
+                 * pdf文件名称
+                 */
                 String pdfName = totalName.substring(0,dotPosition);
 
                 System.out.println("当前文件名："+pdfName);
                 //在targetPath下创建pdfName文件夹
-                String pdfDirPath = targetPath + pathSeperator + illegalCharInNameHandler.legalizeName(pdfName);
+                String pdfDirPath = targetPath + pathSeperator + "file" + pdfCount;
                 File pdfDir = new File(pdfDirPath);
                 if(!pdfDir.exists()){
                     pdfDir.mkdir();
@@ -65,13 +79,13 @@ public class PdfAreaExtraction {
                     /*
                      * 首先获取全部“资料来源”的y坐标List
                      */
-                    String keyWords = "资料来源";
+                    String keyWords = "来源";
                     List<Integer> keyWordsList = pdfBoxKeyWordPosition.getKeyWordPosition(currentPage,keyWords,tfile);
                     /*
                      * 获取“资料来源”和“图表标题”的y坐标对象列表
                      */
                     AreaDetectionUtils areaDetectionUtils = new AreaDetectionUtils();
-                    List<DoubleY> doubleYList = areaDetectionUtils.getDoubleY(keyWordsList,document,pts,currentPage,tfile);
+                    List<DoubleY> doubleYList = areaDetectionUtils.getDoubleY(keyWordsList,document,pts,currentPage,tfile,picOrTabTitileList,sourceList);
                     if(!doubleYList.isEmpty()){
 
                         for(DoubleY doubleY:doubleYList){
@@ -80,7 +94,10 @@ public class PdfAreaExtraction {
                         }
                     }
                 }
-
+                List<CsvEntity> csvEntities = new CsvEntityUtils().writeCsvEntityList(pdfName,picOrTabTitileList,sourceList);
+                CsvWriter csvWriter = new CsvWriter(pdfDirPath,"图片属性");
+                csvWriter.writeIntoCsv(csvEntities);
+                pdfCount++;
             }
         } catch (Exception e) {
             e.printStackTrace();

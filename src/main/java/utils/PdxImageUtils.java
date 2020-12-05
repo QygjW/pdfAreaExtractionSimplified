@@ -50,7 +50,7 @@ public class PdxImageUtils {
     /**
      * 根据指定文件页码的指定区域读取图片
      *
-     * @param filePath PDF文件路径
+     * @param pdfFile PDF文件
      * @param iPage PDF页码
      * @param imgRrect 读取图片的区域
      * @return 图片内容

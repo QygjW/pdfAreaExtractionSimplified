@@ -17,8 +17,10 @@ import java.util.regex.Pattern;
 public class AreaDetectionUtils {
 
     private final String pictureOrFormStartString = "(图|表|图表)"+"[ ]*"+"\\d+"+".*";
+    private final String sourceString = ".*" + "来源" + ".*";
     private final String nameSeperator = "_";
     private Pattern pictureOrFormStartPattern;
+    private Pattern sourcePattern;
 
     /**
      *
@@ -27,7 +29,7 @@ public class AreaDetectionUtils {
      * @param pts
      * @return
      */
-    public List<DoubleY> getDoubleY(List<Integer> ySourceList, PDDocument document, PDFTextStripper pts, int pageNumber,File file){
+    public List<DoubleY> getDoubleY(List<Integer> ySourceList, PDDocument document, PDFTextStripper pts, int pageNumber, File file, List<String> picOrTabTitleList, List<String> sourceList){
         List doubleYList = new ArrayList();
         if(ySourceList.isEmpty()){
             return doubleYList;
@@ -52,15 +54,23 @@ public class AreaDetectionUtils {
         String[] stringArray = content.split("\r\n");
         //图表的正则匹配
         pictureOrFormStartPattern = Pattern.compile(pictureOrFormStartString);
+        sourcePattern = Pattern.compile(sourceString);
 
         int lineNum = 0;
         for(;lineNum < stringArray.length;lineNum++) {
             Matcher pictureOrFormStartMatcher = pictureOrFormStartPattern.matcher(stringArray[lineNum]);
+            Matcher sourceMatcher = sourcePattern.matcher(stringArray[lineNum]);
+
             int sourcePos = -1;
             List<Integer> yPicorTabList;
+            if(sourceMatcher.matches()){
+                sourceList.add(stringArray[lineNum]);
+            }
+
             if (pictureOrFormStartMatcher.matches()) {
+                picOrTabTitleList.add(stringArray[lineNum]);
                 yPicorTabList = pdfBoxKeyWordPosition.getKeyWordPosition(pageNumber,stringArray[lineNum].substring(0,6),file);
-                System.out.println(stringArray[lineNum]+"substring = "+stringArray[lineNum].substring(0,6));
+                System.out.println(stringArray[lineNum]+"substring = "+stringArray[lineNum].substring(0,8));
                 if(yPicorTabList.isEmpty()){
                     continue;
                 }
